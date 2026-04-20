@@ -1,0 +1,7 @@
+package com.dnunezv.u4_actividad3_creacion_app.repository.ubicacion
+
+import com.dnunezv.u4_actividad3_creacion_app.domain.ubicacion.LevantamientoPorEquipo
+import com.dnunezv.u4_actividad3_creacion_app.domain.ubicacion.LevantamientoPorEquipoId
+import org.springframework.data.jpa.repository.JpaRepository
+
+interface LevantamientoPorEquipoRepository : JpaRepository<LevantamientoPorEquipo, LevantamientoPorEquipoId>

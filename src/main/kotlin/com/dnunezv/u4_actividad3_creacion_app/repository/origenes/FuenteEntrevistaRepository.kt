@@ -1,0 +1,7 @@
+package com.dnunezv.u4_actividad3_creacion_app.repository.origenes
+
+import com.dnunezv.u4_actividad3_creacion_app.domain.origenes.FuenteEntrevista
+import com.dnunezv.u4_actividad3_creacion_app.domain.origenes.FuenteEntrevistaId
+import org.springframework.data.jpa.repository.JpaRepository
+
+interface FuenteEntrevistaRepository : JpaRepository<FuenteEntrevista, FuenteEntrevistaId>

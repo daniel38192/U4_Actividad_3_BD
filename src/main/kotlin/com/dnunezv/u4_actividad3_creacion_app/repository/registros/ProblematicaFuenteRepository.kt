@@ -1,0 +1,7 @@
+package com.dnunezv.u4_actividad3_creacion_app.repository.registros
+
+import com.dnunezv.u4_actividad3_creacion_app.domain.registros.ProblematicaFuente
+import com.dnunezv.u4_actividad3_creacion_app.domain.registros.ProblematicaFuenteId
+import org.springframework.data.jpa.repository.JpaRepository
+
+interface ProblematicaFuenteRepository : JpaRepository<ProblematicaFuente, ProblematicaFuenteId>

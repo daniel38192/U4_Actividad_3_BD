@@ -1,0 +1,7 @@
+package com.dnunezv.u4_actividad3_creacion_app.repository.origenes
+
+import com.dnunezv.u4_actividad3_creacion_app.domain.origenes.FuenteObservacion
+import com.dnunezv.u4_actividad3_creacion_app.domain.origenes.FuenteObservacionId
+import org.springframework.data.jpa.repository.JpaRepository
+
+interface FuenteObservacionRepository : JpaRepository<FuenteObservacion, FuenteObservacionId>

@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<body th:replace="~{fragments/layout :: appLayout('Nuevo reporte', 'reportes-create', ~{::section})}">
+<section>
+    <header class="page-header">
+        <h1>Registrar reporte</h1>
+        <p>
+            Captura un nuevo reporte comunitario con su zona, grupo etario, fuente y
+            evidencia principal. La vista mantiene la misma base visual del panel para que
+            el flujo de registro no se sienta separado del resto del sistema.
+        </p>
+    </header>
+
+    <div th:if="${errors != null and !#lists.isEmpty(errors)}" class="error-banner">
+        Revisa los datos capturados antes de guardar.
+        <ul>
+            <li th:each="error : ${errors}" th:text="${error}">Mensaje de error</li>
+        </ul>
+    </div>
+
+    <section class="panel">
+        <h2>Datos del reporte</h2>
+        <p class="panel-description">
+            Los campos obligatorios permiten crear el reporte base mientras se define la
+            implementación de los pasos complementarios.
+        </p>
+
+        <form th:action="@{/reportes}" th:object="${reporteForm}" method="post">
+            <div class="form-grid">
+                <div class="form-field">
+                    <label for="nombre">Nombre</label>
+                    <input id="nombre" type="text" th:field="*{nombre}" maxlength="50" placeholder="Ej. Falta de alumbrado en plaza principal">
+                </div>
+
+                <div class="form-field">
+                    <label for="fecha">Fecha</label>
+                    <input id="fecha" type="date" th:field="*{fecha}">
+                </div>
+
+                <div class="form-field">
+                    <label for="idZona">Zona</label>
+                    <select id="idZona" th:field="*{idZona}">
+                        <option value="">Selecciona una zona</option>
+                        <option th:each="zona : ${zonas}" th:value="${zona.idZona}" th:text="${zona.nombre}">Zona</option>
+                    </select>
+                </div>
+
+                <div class="form-field">
+                    <label for="idGrupoEtario">Grupo etario</label>
+                    <select id="idGrupoEtario" th:field="*{idGrupoEtario}">
+                        <option value="">Selecciona un grupo</option>
+                        <option th:each="grupo : ${gruposEtarios}" th:value="${grupo.idGrupoEtario}" th:text="${grupo.rangoEdad}">[21 - 30]</option>
+                    </select>
+                </div>
+
+                <div class="form-field">
+                    <label for="evidencia">Evidencia</label>
+                    <input id="evidencia" type="text" th:field="*{evidencia}" maxlength="255" placeholder="Ej. Fotografías georreferenciadas">
+                    <span class="field-help">Usa una descripción corta de la evidencia disponible.</span>
+                </div>
+
+                <div class="form-field form-field-full">
+                    <label for="descripcion">Descripción</label>
+                    <textarea id="descripcion" th:field="*{descripcion}" maxlength="255" placeholder="Resume la problemática observada y el contexto del reporte."></textarea>
+                </div>
+
+                <div class="form-field form-field-full">
+                    <div class="selector-card">
+                        <div class="selector-header">
+                            <div>
+                                <strong>Fuentes</strong>
+                                <div class="field-help">Selecciona una o varias fuentes desde la tabla detallada.</div>
+                            </div>
+                            <button type="button" class="icon-button" data-open-modal="fuentes-modal" aria-label="Seleccionar fuentes">+</button>
+                        </div>
+                        <div id="fuentes-summary" class="selection-summary"></div>
+                        <div id="fuentes-inputs" class="hidden-inputs">
+                            <input th:each="idFuente : *{idFuentes}" type="hidden" name="idFuentes" th:value="${idFuente}">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-field form-field-full">
+                    <div class="selector-card">
+                        <div class="selector-header">
+                            <div>
+                                <strong>Equipos</strong>
+                                <div class="field-help">Puedes asociar varios equipos al levantamiento generado por el reporte.</div>
+                            </div>
+                            <button type="button" class="icon-button" data-open-modal="equipos-modal" aria-label="Seleccionar equipos">+</button>
+                        </div>
+                        <div id="equipos-summary" class="selection-summary"></div>
+                        <div id="equipos-inputs" class="hidden-inputs">
+                            <input th:each="idEquipo : *{idEquipos}" type="hidden" name="idEquipos" th:value="${idEquipo}">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="button-primary">Guardar reporte</button>
+                <a class="button-link" th:href="@{/dashboard}" href="/dashboard">Cancelar</a>
+            </div>
+        </form>
+    </section>
+
+    <div id="fuentes-modal" class="modal" aria-hidden="true">
+        <div class="modal-card">
+            <div class="modal-header">
+                <div>
+                    <h3>Seleccionar fuentes</h3>
+                    <p>Carga las fuentes desde <code>/api/fuentes/description</code> y marca las que deben asociarse.</p>
+                </div>
+                <button type="button" class="modal-close" data-close-modal="fuentes-modal" aria-label="Cerrar modal">×</button>
+            </div>
+            <div class="modal-table-wrapper">
+                <table class="selectable-table">
+                    <thead>
+                    <tr>
+                        <th></th>
+                        <th>ID</th>
+                        <th>Tipo</th>
+                        <th>Descripción</th>
+                    </tr>
+                    </thead>
+                    <tbody id="fuentes-table-body">
+                    <tr>
+                        <td colspan="4">Cargando fuentes...</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="button-link" data-close-modal="fuentes-modal">Cancelar</button>
+                <button type="button" class="button-primary" data-apply-selection="fuentes">Aceptar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="equipos-modal" class="modal" aria-hidden="true">
+        <div class="modal-card">
+            <div class="modal-header">
+                <div>
+                    <h3>Seleccionar equipos</h3>
+                    <p>Carga los equipos disponibles desde <code>/api/equipos</code> y marca los que participarán.</p>
+                </div>
+                <button type="button" class="modal-close" data-close-modal="equipos-modal" aria-label="Cerrar modal">×</button>
+            </div>
+            <div class="modal-table-wrapper">
+                <table class="selectable-table">
+                    <thead>
+                    <tr>
+                        <th></th>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Descripción</th>
+                    </tr>
+                    </thead>
+                    <tbody id="equipos-table-body">
+                    <tr>
+                        <td colspan="4">Cargando equipos...</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="button-link" data-close-modal="equipos-modal">Cancelar</button>
+                <button type="button" class="button-primary" data-apply-selection="equipos">Aceptar</button>
+            </div>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        const initialFuentes = /*[[${reporteForm.idFuentes}]]*/ [];
+        const initialEquipos = /*[[${reporteForm.idEquipos}]]*/ [];
+
+        const selectorConfigs = {
+            fuentes: {
+                endpoint: "/api/fuentes/description",
+                modalId: "fuentes-modal",
+                tbodyId: "fuentes-table-body",
+                summaryId: "fuentes-summary",
+                inputsId: "fuentes-inputs",
+                inputName: "idFuentes",
+                emptyMessage: "No hay fuentes seleccionadas.",
+                columns: [
+                    item => item.idFuente,
+                    item => item.tipo,
+                    item => item.descripcion || "Sin descripción"
+                ],
+                getId: item => item.idFuente,
+                getLabel: item => `${item.tipo} #${item.idFuente}`
+            },
+            equipos: {
+                endpoint: "/api/equipos",
+                modalId: "equipos-modal",
+                tbodyId: "equipos-table-body",
+                summaryId: "equipos-summary",
+                inputsId: "equipos-inputs",
+                inputName: "idEquipos",
+                emptyMessage: "No hay equipos seleccionados.",
+                columns: [
+                    item => item.idEquipo,
+                    item => item.nombre,
+                    item => item.descripcion || "Sin descripción"
+                ],
+                getId: item => item.idEquipo,
+                getLabel: item => item.nombre
+            }
+        };
+
+        const selectorState = {
+            fuentes: {
+                selected: new Set((initialFuentes || []).map(Number)),
+                items: []
+            },
+            equipos: {
+                selected: new Set((initialEquipos || []).map(Number)),
+                items: []
+            }
+        };
+
+        function escapeHtml(value) {
+            return String(value)
+                .replaceAll("&", "&amp;")
+                .replaceAll("<", "&lt;")
+                .replaceAll(">", "&gt;")
+                .replaceAll('"', "&quot;")
+                .replaceAll("'", "&#39;");
+        }
+
+        function renderSummary(key) {
+            const config = selectorConfigs[key];
+            const state = selectorState[key];
+            const summary = document.getElementById(config.summaryId);
+            const inputs = document.getElementById(config.inputsId);
+            const selectedIds = [...state.selected];
+            const labelsById = new Map(state.items.map(item => [config.getId(item), config.getLabel(item)]));
+
+            inputs.innerHTML = selectedIds
+                .map(id => `<input type="hidden" name="${config.inputName}" value="${id}">`)
+                .join("");
+
+            if (selectedIds.length === 0) {
+                summary.innerHTML = `<span class="selection-empty">${config.emptyMessage}</span>`;
+                return;
+            }
+
+            summary.innerHTML = selectedIds
+                .map(id => `<span class="selection-chip">${escapeHtml(labelsById.get(id) || `ID ${id}`)}</span>`)
+                .join("");
+        }
+
+        function renderTable(key) {
+            const config = selectorConfigs[key];
+            const state = selectorState[key];
+            const tbody = document.getElementById(config.tbodyId);
+
+            if (state.items.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4">No hay elementos disponibles.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = state.items.map(item => {
+                const id = config.getId(item);
+                const checked = state.selected.has(id) ? "checked" : "";
+                const cells = config.columns
+                    .map(column => `<td>${escapeHtml(column(item))}</td>`)
+                    .join("");
+                return `
+                    <tr>
+                        <td><input class="table-check" type="checkbox" data-selector="${key}" value="${id}" ${checked}></td>
+                        ${cells}
+                    </tr>
+                `;
+            }).join("");
+        }
+
+        async function loadItems(key) {
+            const config = selectorConfigs[key];
+            const tbody = document.getElementById(config.tbodyId);
+            tbody.innerHTML = `<tr><td colspan="4">Cargando...</td></tr>`;
+
+            try {
+                const response = await fetch(config.endpoint, {
+                    headers: { "Accept": "application/json" }
+                });
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                selectorState[key].items = await response.json();
+                renderTable(key);
+                renderSummary(key);
+            } catch (error) {
+                tbody.innerHTML = `<tr><td colspan="4">No se pudo cargar la información.</td></tr>`;
+            }
+        }
+
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.classList.add("is-open");
+            modal.setAttribute("aria-hidden", "false");
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.classList.remove("is-open");
+            modal.setAttribute("aria-hidden", "true");
+        }
+
+        document.querySelectorAll("[data-open-modal]").forEach(button => {
+            button.addEventListener("click", async () => {
+                const modalId = button.dataset.openModal;
+                const key = modalId.startsWith("fuentes") ? "fuentes" : "equipos";
+                if (selectorState[key].items.length === 0) {
+                    await loadItems(key);
+                } else {
+                    renderTable(key);
+                }
+                openModal(modalId);
+            });
+        });
+
+        document.querySelectorAll("[data-close-modal]").forEach(button => {
+            button.addEventListener("click", () => closeModal(button.dataset.closeModal));
+        });
+
+        document.querySelectorAll("[data-apply-selection]").forEach(button => {
+            button.addEventListener("click", () => {
+                const key = button.dataset.applySelection;
+                renderSummary(key);
+                closeModal(selectorConfigs[key].modalId);
+            });
+        });
+
+        document.addEventListener("change", event => {
+            const target = event.target;
+            if (!(target instanceof HTMLInputElement) || target.dataset.selector == null) {
+                return;
+            }
+
+            const key = target.dataset.selector;
+            const id = Number(target.value);
+            if (target.checked) {
+                selectorState[key].selected.add(id);
+            } else {
+                selectorState[key].selected.delete(id);
+            }
+        });
+
+        document.querySelectorAll(".modal").forEach(modal => {
+            modal.addEventListener("click", event => {
+                if (event.target === modal) {
+                    closeModal(modal.id);
+                }
+            });
+        });
+
+        renderSummary("fuentes");
+        renderSummary("equipos");
+    </script>
+</section>
+</body>
+</html>

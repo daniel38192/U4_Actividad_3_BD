@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<body th:replace="~{fragments/layout :: appLayout('Panel', 'dashboard', ~{::section})}">
+<section>
+    <header class="page-header">
+        <h1>Panel operativo</h1>
+        <p>
+            Consulta los reportes más recientes registrados en el sistema, junto con su
+            zona, grupo etario, fuente y evidencia asociada.
+        </p>
+        <div class="page-actions">
+            <a class="button-primary" th:href="@{/reportes/nuevo}" href="/reportes/nuevo">Registrar reporte</a>
+        </div>
+    </header>
+
+    <div th:if="${created}" class="feedback-banner">
+        El reporte se registró correctamente.
+    </div>
+
+    <div class="content-grid">
+        <article class="stat-card">
+            <span>Últimos reportes</span>
+            <strong th:text="${#lists.size(lastReportes)}">0</strong>
+            <small>Registros cargados en esta vista</small>
+        </article>
+        <article class="stat-card">
+            <span>Con equipos asignados</span>
+            <strong th:text="${#lists.size(lastReportes.?[equipos != null and !#strings.isEmpty(equipos)])}">0</strong>
+            <small>Reportes con equipos relacionados</small>
+        </article>
+        <article class="stat-card">
+            <span>Con descripción</span>
+            <strong th:text="${#lists.size(lastReportes.?[descripcion != null and !#strings.isEmpty(descripcion)])}">0</strong>
+            <small>Reportes con detalle capturado</small>
+        </article>
+    </div>
+
+    <section class="panel">
+        <h2>Últimos reportes registrados</h2>
+
+        <div th:if="${#lists.isEmpty(lastReportes)}" class="empty-state">
+            No hay reportes disponibles en este momento.
+        </div>
+
+        <div th:unless="${#lists.isEmpty(lastReportes)}" class="table-wrapper">
+            <table class="report-table">
+                <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Zona</th>
+                    <th>Grupo etario</th>
+                    <th>Fuente</th>
+                    <th>Equipos</th>
+                    <th>Descripción</th>
+                    <th>Evidencia</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="reporte : ${lastReportes}">
+                    <td th:text="${reporte.fecha}">2026-04-19</td>
+                    <td th:text="${reporte.zona}">Zona</td>
+                    <td th:text="${reporte.grupoEtario}">[21 - 30]</td>
+                    <td th:text="${reporte.fuente ?: 'Sin fuentes'}">Encuesta</td>
+                    <td th:text="${reporte.equipos ?: 'Sin equipo asignado'}">Equipo</td>
+                    <td th:text="${reporte.descripcion ?: 'Sin descripción'}">Descripción</td>
+                    <td th:text="${reporte.evidencia}">Evidencia</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</section>
+</body>
+</html>

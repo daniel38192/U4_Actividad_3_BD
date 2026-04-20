@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<body>
+<nav th:fragment="navbar(activePage)" class="app-navbar">
+    <div class="brand">
+        <span class="brand-mark">OCN</span>
+        <div>
+            <strong>Reportes comunitarios</strong>
+            <p>Gestión de trabajo de campo</p>
+        </div>
+    </div>
+
+    <div class="nav-links">
+        <a th:href="@{/dashboard}" th:classappend="${activePage == 'dashboard'} ? ' active'" href="/dashboard">Panel</a>
+        <a th:href="@{/reportes/nuevo}" th:classappend="${activePage == 'reportes-create'} ? ' active'" href="/reportes/nuevo">Nuevo reporte</a>
+        <form th:action="@{/perform_logout}" method="post" class="logout-form">
+            <button type="submit" class="logout-button">Cerrar sesión</button>
+        </form>
+    </div>
+</nav>
+</body>
+</html>
