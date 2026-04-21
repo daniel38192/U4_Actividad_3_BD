@@ -19,9 +19,9 @@
 
     <div class="content-grid">
         <article class="stat-card">
-            <span>Últimos reportes</span>
-            <strong th:text="${#lists.size(lastReportes)}">0</strong>
-            <small>Registros cargados en esta vista</small>
+            <span>Total de registros disponibles</span>
+            <strong th:text="${totalReportes}">0</strong>
+            <small>Reportes guardados en el sistema</small>
         </article>
         <article class="stat-card">
             <span>Con equipos asignados</span>
@@ -33,6 +33,80 @@
             <strong th:text="${#lists.size(lastReportes.?[descripcion != null and !#strings.isEmpty(descripcion)])}">0</strong>
             <small>Reportes con detalle capturado</small>
         </article>
+    </div>
+
+    <div class="dashboard-grid">
+        <section class="panel">
+            <h2>Levantamientos por grupo etario</h2>
+            <p class="panel-description">
+                Distribución de levantamientos registrados por rango de edad.
+            </p>
+
+            <div th:if="${#lists.isEmpty(levantamientosPorGrupoEtario)}" class="empty-state">
+                No hay datos de grupos etarios disponibles.
+            </div>
+
+            <div th:unless="${#lists.isEmpty(levantamientosPorGrupoEtario)}" class="metric-list">
+                <div th:each="item : ${levantamientosPorGrupoEtario}" class="metric-row">
+                    <div class="metric-label">
+                        <span th:text="${item.rangoedad}">[21 - 30]</span>
+                        <strong th:text="${item.totallevantamientos}">0</strong>
+                    </div>
+                    <div class="metric-bar-track">
+                        <div class="metric-bar-fill"
+                             th:style="|width: ${item.totallevantamientos * 100 / maxLevantamientosGrupoEtario}%|"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="panel">
+            <h2>Fuentes almacenadas</h2>
+            <p class="panel-description">
+                Conteo total de fuentes registradas por tipo.
+            </p>
+
+            <div th:if="${#lists.isEmpty(fuentesAlmacenadas)}" class="empty-state">
+                No hay datos de fuentes disponibles.
+            </div>
+
+            <div th:unless="${#lists.isEmpty(fuentesAlmacenadas)}" class="metric-list">
+                <div th:each="item : ${fuentesAlmacenadas}" class="metric-row">
+                    <div class="metric-label">
+                        <span th:text="${item.nombre}">Encuesta</span>
+                        <strong th:text="${item.totalfuentes}">0</strong>
+                    </div>
+                    <div class="metric-bar-track">
+                        <div class="metric-bar-fill"
+                             th:style="|width: ${item.totalfuentes * 100 / maxFuentesAlmacenadas}%|"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="panel">
+            <h2>Levantamientos por equipo</h2>
+            <p class="panel-description">
+                Equipos con más levantamientos realizados hasta el momento.
+            </p>
+
+            <div th:if="${#lists.isEmpty(levantamientosPorEquipo)}" class="empty-state">
+                No hay datos de equipos disponibles.
+            </div>
+
+            <div th:unless="${#lists.isEmpty(levantamientosPorEquipo)}" class="metric-list">
+                <div th:each="item : ${levantamientosPorEquipo}" class="metric-row">
+                    <div class="metric-label">
+                        <span th:text="${item.nombre}">Equipo Norte</span>
+                        <strong th:text="${item.totallevantamientos}">0</strong>
+                    </div>
+                    <div class="metric-bar-track">
+                        <div class="metric-bar-fill"
+                             th:style="|width: ${item.totallevantamientos * 100 / maxLevantamientosEquipo}%|"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
     </div>
 
     <section class="panel">

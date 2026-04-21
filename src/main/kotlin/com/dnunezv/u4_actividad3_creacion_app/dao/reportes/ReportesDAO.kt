@@ -7,4 +7,7 @@ interface ReportesDAO {
     fun findLastFifteen(): List<ReporteModel>
     fun addReporteAndGetGeratedID(addReporte: AddReporteDTO): Int
     fun deleteReporteByID(idReporte: Int)
+    fun findAllWithLimitAndOffset(limit: Int, offset: Int): List<ReporteModel>
+    fun countAllReportes(): Int
+    fun deleteReporte(reporteId: Int)
 }

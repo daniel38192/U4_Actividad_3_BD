@@ -6,6 +6,7 @@ import org.springframework.jdbc.core.DataClassRowMapper
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
+import org.springframework.jdbc.core.queryForObject
 import org.springframework.stereotype.Repository
 
 @Repository
@@ -49,5 +50,26 @@ class ReportesDAOImpl(val jdbcTemplate: JdbcTemplate): ReportesDAO {
 
     override fun deleteReporteByID(idReporte: Int){
         jdbcTemplate.update("exec registros.borrarReporte @idReporte", mapOf("idReporte" to idReporte))
+    }
+
+    override fun findAllWithLimitAndOffset(limit: Int, offset: Int): List<ReporteModel>
+        = jdbcTemplate.query(
+            """
+                select *
+                from registros.reportes
+                order by fecha desc, idReporte desc
+                offset ? rows fetch next ? rows only
+            """.trimIndent(),
+            DataClassRowMapper(ReporteModel::class.java),
+            offset, limit
+        )
+
+    override fun countAllReportes(): Int
+        = jdbcTemplate.queryForObject<Int>(
+            "select count(*) from registros.reportes"
+    ) ?: 0
+
+    override fun deleteReporte(reporteId: Int) {
+        jdbcTemplate.update("exec registros.borrarReporte ?", reporteId)
     }
 }

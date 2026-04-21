@@ -29,6 +29,12 @@ class ReporteServiceImpl(
     override fun findLastFifteen(): List<ReporteModel>
         = reportesDAO.findLastFifteen()
 
+    override fun findAllWithLimitAndOffset(limit: Int, offset: Int): List<ReporteModel>
+        = reportesDAO.findAllWithLimitAndOffset(limit, offset)
+
+    override fun countAllReportes(): Int
+        = reportesDAO.countAllReportes()
+
     override fun addReporte(addReporte: AddReporteDTO): Int
         = reportesDAO.addReporteAndGetGeratedID(addReporte)
 
@@ -67,4 +73,7 @@ class ReporteServiceImpl(
         }
         return idReporte
     }
+
+    override fun deleteReporte(reporteId: Int)
+        = reportesDAO.deleteReporte(reporteId)
 }

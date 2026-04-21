@@ -5,6 +5,9 @@ import com.dnunezv.u4_actividad3_creacion_app.model.ReporteModel
 
 interface ReporteService {
     fun findLastFifteen(): List<ReporteModel>
+    fun findAllWithLimitAndOffset(limit: Int, offset: Int): List<ReporteModel>
+    fun countAllReportes(): Int
     fun addReporte(addReporte: AddReporteDTO): Int
     fun createReporte(addReporte: AddReporteDTO, idFuentes: List<Int>, idEquipos: List<Int>): Int
+    fun deleteReporte(reporteId: Int)
 }

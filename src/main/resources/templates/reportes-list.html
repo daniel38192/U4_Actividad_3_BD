@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<body th:replace="~{fragments/layout :: appLayout('Ver reportes', 'reportes-list', ~{::section})}">
+<section>
+    <header class="page-header">
+        <h1>Todos los reportes</h1>
+        <p>
+            Consulta el historial completo de reportes comunitarios en una vista amplia y
+            alineada visualmente con el panel principal. Por ahora esta pantalla solo
+            presenta la estructura visual mientras se implementa la lógica de carga.
+        </p>
+        <div class="page-actions">
+            <a class="button-primary" th:href="@{/reportes/nuevo}" href="/reportes/nuevo">Añadir reporte</a>
+            <a class="button-link" th:href="@{/dashboard}" href="/dashboard">Volver al panel</a>
+        </div>
+    </header>
+
+    <div class="content-grid">
+        <article class="stat-card">
+            <span>Total de reportes</span>
+            <strong th:text="${totalReportes}">0</strong>
+            <small>Registros guardados en el sistema</small>
+        </article>
+        <article class="stat-card">
+            <span>Mostrando por página</span>
+            <strong th:text="${pageSize}">20</strong>
+            <small>Reportes máximos por carga</small>
+        </article>
+        <article class="stat-card">
+            <span>Página actual</span>
+            <strong th:text="${currentPage}">1</strong>
+            <small th:text="|De ${totalPages} páginas disponibles|">De 1 páginas disponibles</small>
+        </article>
+    </div>
+
+    <section class="panel">
+        <h2>Listado general</h2>
+        <p class="panel-description">
+            La tabla conserva la misma organización del dashboard y ahora carga bloques
+            configurables para no traer todo el historial al mismo tiempo.
+        </p>
+
+        <div class="pagination-controls">
+            <form th:action="@{/reportes}" method="get" class="inline-form">
+                <input type="hidden" name="page" value="1">
+                <div class="inline-field">
+                    <label for="page_size">Reportes por página</label>
+                    <input id="page_size"
+                           name="page_size"
+                           type="number"
+                           min="1"
+                           max="50"
+                           th:value="${pageSize}"
+                           value="20">
+                </div>
+                <button type="submit" class="button-primary">Aplicar</button>
+            </form>
+        </div>
+
+        <div th:if="${#lists.isEmpty(reportes)}" class="empty-state">
+            No hay reportes cargados todavía.
+        </div>
+
+        <div th:unless="${#lists.isEmpty(reportes)}" class="table-wrapper">
+            <table class="report-table">
+                <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Zona</th>
+                    <th>Grupo etario</th>
+                    <th>Fuente</th>
+                    <th>Equipos</th>
+                    <th>Descripción</th>
+                    <th>Evidencia</th>
+                    <th>Acciones</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="reporte : ${reportes}">
+                    <td th:text="${reporte.fecha}">2026-04-21</td>
+                    <td th:text="${reporte.zona}">Zona centro</td>
+                    <td th:text="${reporte.grupoEtario}">[21 - 30]</td>
+                    <td th:text="${reporte.fuente ?: 'Sin fuentes'}">Encuesta</td>
+                    <td th:text="${reporte.equipos ?: 'Sin equipo asignado'}">Equipo A</td>
+                    <td th:text="${reporte.descripcion ?: 'Sin descripción'}">Descripción del reporte</td>
+                    <td th:text="${reporte.evidencia}">Fotografía</td>
+                    <td>
+                        <div class="table-actions">
+                            <button type="button"
+                                    class="button-danger delete-report-button"
+                                    th:attr="data-reporte-id=${reporte.idReporte},data-reporte-label=|Reporte #${reporte.idReporte}|">
+                                Borrar
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div th:if="${totalPages > 1}" class="pagination">
+            <a th:if="${currentPage > 1}" th:href="@{/reportes(page=${currentPage - 1}, page_size=${pageSize})}" href="/reportes?page=1&amp;page_size=20">Anterior</a>
+            <th:block th:each="pageNumber : ${pages}">
+                <span th:if="${pageNumber == currentPage}" th:text="${pageNumber}">1</span>
+                <a th:unless="${pageNumber == currentPage}"
+                   th:href="@{/reportes(page=${pageNumber}, page_size=${pageSize})}"
+                   th:text="${pageNumber}"
+                   href="/reportes?page=2&amp;page_size=20">2</a>
+            </th:block>
+            <a th:if="${currentPage < totalPages}" th:href="@{/reportes(page=${currentPage + 1}, page_size=${pageSize})}" href="/reportes?page=2&amp;page_size=20">Siguiente</a>
+        </div>
+    </section>
+
+    <div id="delete-modal" class="modal" aria-hidden="true">
+        <div class="modal-card">
+            <div class="modal-header">
+                <div>
+                    <h3>Confirmar eliminación</h3>
+                    <p id="delete-modal-message">¿Seguro que deseas eliminar este reporte?</p>
+                </div>
+                <button type="button" class="modal-close" data-close-modal="delete-modal" aria-label="Cerrar modal">×</button>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="button-link" data-close-modal="delete-modal">Cancelar</button>
+                <button type="button" id="confirm-delete-button" class="button-danger">Eliminar reporte</button>
+            </div>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        const deleteModal = document.getElementById("delete-modal");
+        const deleteMessage = document.getElementById("delete-modal-message");
+        const confirmDeleteButton = document.getElementById("confirm-delete-button");
+        const csrfToken = document.querySelector('meta[name="_csrf"]')?.content;
+        const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content;
+        let selectedReporteId = null;
+
+        function openDeleteModal(reporteId, label) {
+            selectedReporteId = reporteId;
+            deleteMessage.textContent = `¿Seguro que deseas eliminar ${label}? Esta acción no se puede deshacer.`;
+            deleteModal.classList.add("is-open");
+            deleteModal.setAttribute("aria-hidden", "false");
+        }
+
+        function closeDeleteModal() {
+            selectedReporteId = null;
+            deleteModal.classList.remove("is-open");
+            deleteModal.setAttribute("aria-hidden", "true");
+        }
+
+        document.querySelectorAll(".delete-report-button").forEach(button => {
+            button.addEventListener("click", () => {
+                openDeleteModal(button.dataset.reporteId, button.dataset.reporteLabel || "este reporte");
+            });
+        });
+
+        document.querySelectorAll('[data-close-modal="delete-modal"]').forEach(button => {
+            button.addEventListener("click", closeDeleteModal);
+        });
+
+        deleteModal.addEventListener("click", event => {
+            if (event.target === deleteModal) {
+                closeDeleteModal();
+            }
+        });
+
+        confirmDeleteButton.addEventListener("click", async () => {
+            if (!selectedReporteId) {
+                return;
+            }
+
+            confirmDeleteButton.disabled = true;
+            confirmDeleteButton.textContent = "Eliminando...";
+
+            try {
+                const headers = {};
+                if (csrfToken && csrfHeader) {
+                    headers[csrfHeader] = csrfToken;
+                }
+
+                const response = await fetch(`/api/reporte/${selectedReporteId}`, {
+                    method: "DELETE",
+                    headers
+                });
+
+                if (!response.ok) {
+                    throw new Error(`No se pudo eliminar el reporte. Código ${response.status}`);
+                }
+
+                window.location.reload();
+            } catch (error) {
+                alert(error.message || "No se pudo eliminar el reporte.");
+                confirmDeleteButton.disabled = false;
+                confirmDeleteButton.textContent = "Eliminar reporte";
+            } finally {
+                if (selectedReporteId === null) {
+                    confirmDeleteButton.disabled = false;
+                    confirmDeleteButton.textContent = "Eliminar reporte";
+                }
+            }
+        });
+    </script>
+</section>
+</body>
+</html>
