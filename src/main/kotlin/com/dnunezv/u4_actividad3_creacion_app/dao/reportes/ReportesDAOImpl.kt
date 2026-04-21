@@ -16,7 +16,7 @@ class ReportesDAOImpl(val jdbcTemplate: JdbcTemplate): ReportesDAO {
 
     override fun findLastFifteen(): List<ReporteModel>
     = jdbcTemplate.query(
-        "SELECT TOP 15 * FROM registros.reportes ORDER BY fecha DESC",
+        "SELECT TOP 15 * FROM registros.reportes ORDER BY fecha DESC, idreporte DESC",
         DataClassRowMapper(ReporteModel::class.java)
     )
 

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<body th:replace="~{fragments/layout :: appLayout('Nueva fuente', 'fuentes-create', ~{::section})}">
+<section>
+    <header class="page-header">
+        <h1>Registrar fuente</h1>
+        <p>
+            Captura una nueva fuente de información utilizando el flujo del procedimiento
+            almacenado para respetar la lógica específica de cada tipo.
+        </p>
+    </header>
+
+    <div th:if="${created}" class="feedback-banner">
+        La fuente se registró correctamente.
+    </div>
+
+    <div th:if="${errors != null and !#lists.isEmpty(errors)}" class="error-banner">
+        Revisa los datos capturados antes de guardar.
+        <ul>
+            <li th:each="error : ${errors}" th:text="${error}">Mensaje de error</li>
+        </ul>
+    </div>
+
+    <section class="panel">
+        <h2>Datos de la fuente</h2>
+        <p class="panel-description">
+            Selecciona el tipo de fuente y escribe el contenido principal que será enviado
+            al procedimiento `origenes.crearFuente`.
+        </p>
+
+        <form th:action="@{/fuentes}" th:object="${fuenteForm}" method="post">
+            <div class="form-grid">
+                <div class="form-field">
+                    <label for="idTipoFuente">Tipo de fuente</label>
+                    <select id="idTipoFuente" th:field="*{idTipoFuente}">
+                        <option value="">Selecciona un tipo</option>
+                        <option th:each="tipo : ${tiposFuente}"
+                                th:value="${tipo.idTipoFuente}"
+                                th:text="${tipo.nombre}">Encuesta</option>
+                    </select>
+                </div>
+
+                <div class="form-field form-field-full">
+                    <label for="nombre">Contenido</label>
+                    <textarea id="nombre" th:field="*{nombre}" maxlength="255" placeholder="Ej. Nombre de encuesta, entrevista, líder comunitario u observación."></textarea>
+                    <span class="field-help">El significado exacto del campo depende del tipo seleccionado.</span>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="button-primary">Guardar fuente</button>
+                <a class="button-link" th:href="@{/dashboard}" href="/dashboard">Cancelar</a>
+            </div>
+        </form>
+    </section>
+</section>
+</body>
+</html>

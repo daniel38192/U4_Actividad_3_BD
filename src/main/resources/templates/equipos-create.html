@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<body th:replace="~{fragments/layout :: appLayout('Nuevo equipo', 'equipos-create', ~{::section})}">
+<section>
+    <header class="page-header">
+        <h1>Registrar equipo</h1>
+        <p>
+            Da de alta un nuevo equipo de trabajo para que pueda asociarse después a los
+            levantamientos y reportes del sistema.
+        </p>
+    </header>
+
+    <div th:if="${created}" class="feedback-banner">
+        El equipo se registró correctamente.
+    </div>
+
+    <div th:if="${errors != null and !#lists.isEmpty(errors)}" class="error-banner">
+        Revisa los datos capturados antes de guardar.
+        <ul>
+            <li th:each="error : ${errors}" th:text="${error}">Mensaje de error</li>
+        </ul>
+    </div>
+
+    <section class="panel">
+        <h2>Datos del equipo</h2>
+        <p class="panel-description">
+            Define el nombre del equipo y, si aplica, una descripción corta para diferenciarlo.
+        </p>
+
+        <form th:action="@{/equipos}" th:object="${equipoForm}" method="post">
+            <div class="form-grid">
+                <div class="form-field">
+                    <label for="nombre">Nombre</label>
+                    <input id="nombre" type="text" th:field="*{nombre}" maxlength="50" placeholder="Ej. Brigada comunitaria norte">
+                </div>
+
+                <div class="form-field form-field-full">
+                    <label for="descripcion">Descripción</label>
+                    <textarea id="descripcion" th:field="*{descripcion}" maxlength="255" placeholder="Describe brevemente el propósito o composición del equipo."></textarea>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="button-primary">Guardar equipo</button>
+                <a class="button-link" th:href="@{/dashboard}" href="/dashboard">Cancelar</a>
+            </div>
+        </form>
+    </section>
+</section>
+</body>
+</html>

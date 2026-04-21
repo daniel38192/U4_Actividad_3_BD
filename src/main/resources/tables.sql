@@ -397,18 +397,12 @@ end
 select @idfuente as idfuente
 end
 GO
-
-
 --Así en la aplicación resulta más práctico inicializar una fuente
 --exec origenes.crearFuente 4, "Se vió una disminución de la calidad del agua"
-
-
-
 --Procedimiento 2: Crear un reporte,
 --Toma los datos de entrada e inicializa la tabla problemática y levantamiento.
 --Decidí encapsular esta lógica para poder verlo como una sola acción a diferencia
 --de crear manualmente las tablas
-
 create procedure registros.crearReporte
     @nombre varchar(50),
     @fecha date,
@@ -429,7 +423,6 @@ values
 select scope_identity() as idreporte;
 end
 GO
-
 -- declare @now date = getdate()
 -- exec registros.crearReporte
 --      "Prueba 1",
@@ -441,7 +434,6 @@ GO
 --
 --
 -- select * from registros.reportes
-
 --Procedimiento 3: Agregar una fuente a un reporte
 create procedure registros.agregarFuenteAReporte
     @idReporte int,
@@ -454,7 +446,6 @@ values
     (@idReporte, @idfuente);
 end
 GO
-
 --Procedimiento 4: Agregar un equipo a un reporte
 create procedure registros.agregarEquipoAReporte
     @idReporte int,
@@ -466,17 +457,14 @@ declare @idLevantamiento int = (
     from registros.problematica
     where idproblematica = @idReporte
 );
-
 insert into ubicacion.levantamientos_por_equipo
 (idlevantamiento, idequipo)
 values
     (@idLevantamiento, @idEquipo);
 end
 GO
-
 --Procedimiento 5: Borrar reporte
 --Decidí encapsular esta lógica para que sea más fácil para el usuario.
-
 create procedure registros.borrarReporte
     @idReporte int
 as

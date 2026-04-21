@@ -1,6 +1,7 @@
 package com.dnunezv.u4_actividad3_creacion_app.service.origenes
 
 import com.dnunezv.u4_actividad3_creacion_app.dao.fuentes.FuentesDAO
+import com.dnunezv.u4_actividad3_creacion_app.dto.AddFuenteDTO
 import com.dnunezv.u4_actividad3_creacion_app.dto.FuenteDTO
 import com.dnunezv.u4_actividad3_creacion_app.dto.FuenteDescDTO
 import com.dnunezv.u4_actividad3_creacion_app.repository.origenes.FuenteRepository
@@ -24,4 +25,7 @@ class FuenteServiceImpl(
         }
     override fun findAllWithAdvancedDescription(): List<FuenteDescDTO>
         = fuentesDao.findAllAndDescription()
+
+    override fun addFuente(addFuente: AddFuenteDTO): Int =
+        fuentesDao.addFuente(addFuente)
 }

@@ -1,8 +1,11 @@
 package com.dnunezv.u4_actividad3_creacion_app.dao.fuentes
 
+import com.dnunezv.u4_actividad3_creacion_app.domain.origenes.Fuente
+import com.dnunezv.u4_actividad3_creacion_app.dto.AddFuenteDTO
 import com.dnunezv.u4_actividad3_creacion_app.dto.FuenteDescDTO
 import org.springframework.jdbc.core.DataClassRowMapper
 import org.springframework.jdbc.core.JdbcTemplate
+import org.springframework.jdbc.core.queryForObject
 import org.springframework.stereotype.Repository
 
 @Repository
@@ -28,4 +31,9 @@ class FuentesDAOImpl(var jdbcTemplate: JdbcTemplate): FuentesDAO {
                 "group by f.idfuente, tf.nombre;"
         return jdbcTemplate.query(sql, DataClassRowMapper(FuenteDescDTO::class.java))
     }
+
+    override fun addFuente(addFuente: AddFuenteDTO): Int
+        = jdbcTemplate.queryForObject<Int>(
+        "exec origenes.crearFuente ?, ?",
+        addFuente.idTipoFuente, addFuente.nombre) ?: throw RuntimeException("Failed to add fuente")
 }
